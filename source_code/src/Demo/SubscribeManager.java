@@ -5,20 +5,40 @@ import javax.swing.*;
 import java.awt.event.*;
 
 public class SubscribeManager extends ManagerModule {
+	static void updatePanel(JPanel pManager, AppTask app, LogPrinter log) {
+		pManager.removeAll();
+		pManager.setBorder(BorderFactory.createTitledBorder("Subscribe Manager"));
+
+		// Layout
+		pManager.setLayout(new GridBagLayout());
+		GridBagConstraints constraint = new GridBagConstraints();
+		constraint.fill = GridBagConstraints.NONE;
+		constraint.anchor = GridBagConstraints.WEST;
+		constraint.gridx = 0;
+		constraint.gridy = 0;
+		constraint.gridwidth = 1;
+		constraint.gridheight = 1;
+
+		new SubscribeManager(pManager, constraint, app, log);
+	}
+
+	int mItem = 0;
+
 	// Constructor
-	SubscribeManager(MainWin win, AppTask app, LogPrinter log) {
+	SubscribeManager(JPanel pManager, GridBagConstraints constraint, AppTask app, LogPrinter log) {
 		super(app, log);
 
 		// Subscribe Panel
-		createSubscribePanel(win);
+		createSubscribePanel(pManager, constraint);
 	}
 
-	void createSubscribePanel(MainWin win) {
+	void createSubscribePanel(JPanel pManager, GridBagConstraints constraint) {
 		// Subscribe Panel
 		JPanel pSubscribe = new JPanel();
 		pSubscribe.setLayout(new FlowLayout());
-		// Add to Main Win
-		win.addComp(pSubscribe);
+		constraint.gridy = mItem;
+		++mItem;
+		pManager.add(pSubscribe, constraint);
 
 		// Add "Subscribe Notification" Item
 		addSubscribeItem(pSubscribe);

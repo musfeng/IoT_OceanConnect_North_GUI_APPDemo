@@ -5,21 +5,41 @@ import javax.swing.*;
 import java.awt.event.*;
 
 public class AppManager extends ManagerModule {
+	static void updatePanel(JPanel pManager, AppTask app, LogPrinter log) {
+		pManager.removeAll();
+		pManager.setBorder(BorderFactory.createTitledBorder("Application Manager"));
+
+		// Layout
+		pManager.setLayout(new GridBagLayout());
+		GridBagConstraints constraint = new GridBagConstraints();
+		constraint.fill = GridBagConstraints.NONE;
+		constraint.anchor = GridBagConstraints.WEST;
+		constraint.gridx = 0;
+		constraint.gridy = 0;
+		constraint.gridwidth = 1;
+		constraint.gridheight = 1;
+
+		new AppManager(pManager, constraint, app, log);
+	}
+
+	int mItem = 0;
+
 	// Constructor
-	AppManager(MainWin win, AppTask app, LogPrinter log) {
+	AppManager(JPanel pManager, GridBagConstraints constraint, AppTask app, LogPrinter log) {
 		super(app, log);
 
 		// App Manager Panel
-		createAppManagerPanel(win);
+		createAppManagerPanel(pManager, constraint);
 	}
 
 	// Create App Manager Panel
-	void createAppManagerPanel(MainWin win) {
+	void createAppManagerPanel(JPanel pManager, GridBagConstraints constraint) {
 		// Modify Application Info Panel
 		JPanel pAppManager = new JPanel();
 		pAppManager.setLayout(new FlowLayout());
-		// Add to Main Win
-		win.addComp(pAppManager);
+		constraint.gridy = mItem;
+		++mItem;
+		pManager.add(pAppManager, constraint);
 
 		// Add "Modify Application Basic Info" Item
 		addModifyAppInfoItem(pAppManager);

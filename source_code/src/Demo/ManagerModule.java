@@ -1,24 +1,26 @@
 package Demo;
 
+import javax.swing.JPanel;
+
 public abstract class ManagerModule {
 	// App Task
 	AppTask mAppTask;
 	// Log Printer;
 	LogPrinter mLogPrinter;
-	// Main Win
-	MainWin mWin;
+	// Manager Panel
+	JPanel mManager;
 
 	// Constructor
 	ManagerModule(AppTask app, LogPrinter log) {
 		mAppTask = app;
 		mLogPrinter = log;
-		mWin = null;
+		mManager = null;
 	}
 
 	// Constructor
-	ManagerModule(AppTask app, LogPrinter log, MainWin win) {
+	ManagerModule(AppTask app, LogPrinter log, JPanel win) {
 		mAppTask = app;
 		mLogPrinter = log;
-		mWin = win;
+		mManager = win;
 	}
 }

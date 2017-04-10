@@ -10,20 +10,40 @@ import java.awt.event.*;
 import java.util.Vector;
 
 public class CommandManagerForAgent extends ManagerModule {
-	// Constructor
-	CommandManagerForAgent(MainWin win, AppTask app, LogPrinter log) {
-		super(app, log, win);
+	static void updatePanel(JPanel pManager, AppTask app, LogPrinter log) {
+		pManager.removeAll();
+		pManager.setBorder(BorderFactory.createTitledBorder("Command Manager For Agent"));
 
-		// Send Command Panel
-		createSendCmdPanel(win);
+		// Layout
+		pManager.setLayout(new GridBagLayout());
+		GridBagConstraints constraint = new GridBagConstraints();
+		constraint.fill = GridBagConstraints.NONE;
+		constraint.anchor = GridBagConstraints.WEST;
+		constraint.gridx = 0;
+		constraint.gridy = 0;
+		constraint.gridwidth = 1;
+		constraint.gridheight = 1;
+
+		new CommandManagerForAgent(pManager, constraint, app, log);
 	}
 
-	void createSendCmdPanel(MainWin win) {
+	int mItem = 0;
+
+	// Constructor
+	CommandManagerForAgent(JPanel pManager, GridBagConstraints constraint, AppTask app, LogPrinter log) {
+		super(app, log, pManager);
+
+		// Send Command Panel
+		createSendCmdPanel(pManager, constraint);
+	}
+
+	void createSendCmdPanel(JPanel pManager, GridBagConstraints constraint) {
 		// Send Command
 		JPanel pSendCmd = new JPanel();
 		pSendCmd.setLayout(new FlowLayout());
-		// Add to Main Win
-		win.addComp(pSendCmd);
+		constraint.gridy = mItem;
+		++mItem;
+		pManager.add(pSendCmd, constraint);
 
 		// Add "Send Command" Item
 		addSendCmdItem(pSendCmd);
@@ -72,7 +92,7 @@ public class CommandManagerForAgent extends ManagerModule {
 		}
 
 		// Update Main Frame
-		mWin.setVisible(false);
+		mManager.setVisible(false);
 		pSendCmd.removeAll();
 
 		// Device ID
@@ -175,6 +195,6 @@ public class CommandManagerForAgent extends ManagerModule {
 		});
 
 		// Update Main Frame
-		mWin.setVisible(true);
+		mManager.setVisible(true);
 	}
 }

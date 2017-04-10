@@ -12,20 +12,40 @@ import java.util.Map;
 import java.util.Vector;
 
 public class DataManager extends ManagerModule {
-	// Constructor
-	DataManager(MainWin win, AppTask app, LogPrinter log) {
-		super(app, log, win);
+	static void updatePanel(JPanel pManager, AppTask app, LogPrinter log) {
+		pManager.removeAll();
+		pManager.setBorder(BorderFactory.createTitledBorder("Data Manager"));
 
-		// Query Data Panel
-		createQueryDataPanel(win);
+		// Layout
+		pManager.setLayout(new GridBagLayout());
+		GridBagConstraints constraint = new GridBagConstraints();
+		constraint.fill = GridBagConstraints.NONE;
+		constraint.anchor = GridBagConstraints.WEST;
+		constraint.gridx = 0;
+		constraint.gridy = 0;
+		constraint.gridwidth = 1;
+		constraint.gridheight = 1;
+
+		new DataManager(pManager, constraint, app, log);
 	}
 
-	void createQueryDataPanel(MainWin win) {
+	int mItem = 0;
+
+	// Constructor
+	DataManager(JPanel pManager, GridBagConstraints constraint, AppTask app, LogPrinter log) {
+		super(app, log, pManager);
+
+		// Query Data Panel
+		createQueryDataPanel(pManager, constraint);
+	}
+
+	void createQueryDataPanel(JPanel pManager, GridBagConstraints constraint) {
 		// Query Data Panel
 		JPanel pQueryData = new JPanel();
 		pQueryData.setLayout(new FlowLayout());
-		// Add to Main Win
-		win.addComp(pQueryData);
+		constraint.gridy = mItem;
+		++mItem;
+		pManager.add(pQueryData, constraint);
 
 		// Add "Get Service List" Item
 		addGetServiceListItem(pQueryData);
@@ -89,7 +109,7 @@ public class DataManager extends ManagerModule {
 
 	void updateQueryDataItemWithRawData(JPanel pQueryData, String strDeviceId) {
 		// Update Main Frame
-		mWin.setVisible(false);
+		mManager.setVisible(false);
 		pQueryData.removeAll();
 
 		// Device ID
@@ -171,12 +191,12 @@ public class DataManager extends ManagerModule {
 		});
 
 		// Update Main Frame
-		mWin.setVisible(true);
+		mManager.setVisible(true);
 	}
 
 	void updateQueryDataItemNormal(JPanel pQueryData, String strDeviceId, Vector<ServiceInfo> vServiceList) {
 		// Update Main Frame
-		mWin.setVisible(false);
+		mManager.setVisible(false);
 		pQueryData.removeAll();
 
 		// Device ID
@@ -311,6 +331,6 @@ public class DataManager extends ManagerModule {
 		});
 
 		// Update Main Frame
-		mWin.setVisible(true);
+		mManager.setVisible(true);
 	}
 }

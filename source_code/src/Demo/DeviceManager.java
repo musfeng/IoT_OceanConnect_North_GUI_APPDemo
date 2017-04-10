@@ -9,26 +9,46 @@ import java.awt.event.*;
 import java.util.Vector;
 
 public class DeviceManager extends ManagerModule {
+	static void updatePanel(JPanel pManager, AppTask app, LogPrinter log) {
+		pManager.removeAll();
+		pManager.setBorder(BorderFactory.createTitledBorder("Device Manager"));
+
+		// Layout
+		pManager.setLayout(new GridBagLayout());
+		GridBagConstraints constraint = new GridBagConstraints();
+		constraint.fill = GridBagConstraints.NONE;
+		constraint.anchor = GridBagConstraints.WEST;
+		constraint.gridx = 0;
+		constraint.gridy = 0;
+		constraint.gridwidth = 1;
+		constraint.gridheight = 1;
+
+		new DeviceManager(pManager, constraint, app, log);
+	}
+
+	int mItem = 0;
+
 	// Constructor
-	DeviceManager(MainWin win, AppTask app, LogPrinter log) {
+	DeviceManager(JPanel pManager, GridBagConstraints constraint, AppTask app, LogPrinter log) {
 		super(app, log);
 
 		// Register & Delete Panel
-		createRegisterAndDeletePanel(win);
+		createRegisterAndDeletePanel(pManager, constraint);
 		// Modify Panel
-		createModifyPanel(win);
+		createModifyPanel(pManager, constraint);
 		// Get List Panel
-		createGetListPanel(win);
+		createGetListPanel(pManager, constraint);
 		// Query Panel
-		createQueryPanel(win);
+		createQueryPanel(pManager, constraint);
 	}
 
-	void createRegisterAndDeletePanel(MainWin win) {
+	void createRegisterAndDeletePanel(JPanel pManager, GridBagConstraints constraint) {
 		// Register & Delete Device Panel
 		JPanel pRegisterAndDelete = new JPanel();
 		pRegisterAndDelete.setLayout(new FlowLayout());
-		// Add to Main Win
-		win.addComp(pRegisterAndDelete);
+		constraint.gridy = mItem;
+		++mItem;
+		pManager.add(pRegisterAndDelete, constraint);
 
 		// Add "Register Direct-Connection Device" Item
 		addRegisterDirectConnectionDeviceItem(pRegisterAndDelete);
@@ -36,34 +56,37 @@ public class DeviceManager extends ManagerModule {
 		addDeleteDeviceItem(pRegisterAndDelete);
 	}
 
-	void createModifyPanel(MainWin win) {
+	void createModifyPanel(JPanel pManager, GridBagConstraints constraint) {
 		// Modify Device Info Panel
 		JPanel pModify = new JPanel();
 		pModify.setLayout(new FlowLayout());
-		// Add to Main Win
-		win.addComp(pModify);
+		constraint.gridy = mItem;
+		++mItem;
+		pManager.add(pModify, constraint);
 
 		// Add "Modify Device Info" Item
 		addModifyDeviceInfoItem(pModify);
 	}
 
-	void createGetListPanel(MainWin win) {
+	void createGetListPanel(JPanel pManager, GridBagConstraints constraint) {
 		// Get List Panel
 		JPanel pGetList = new JPanel();
 		pGetList.setLayout(new FlowLayout());
-		// Add to Main Win
-		win.addComp(pGetList);
+		constraint.gridy = mItem;
+		++mItem;
+		pManager.add(pGetList, constraint);
 
 		// Add "Get Device List" Item
 		addGetListItem(pGetList);
 	}
 
-	void createQueryPanel(MainWin win) {
+	void createQueryPanel(JPanel pManager, GridBagConstraints constraint) {
 		// Query Device Panel
 		JPanel pQuery = new JPanel();
 		pQuery.setLayout(new FlowLayout());
-		// Add to Main Win
-		win.addComp(pQuery);
+		constraint.gridy = mItem;
+		++mItem;
+		pManager.add(pQuery, constraint);
 
 		// Add "Query Device Status" Item
 		addQueryDeviceStatusItem(pQuery);

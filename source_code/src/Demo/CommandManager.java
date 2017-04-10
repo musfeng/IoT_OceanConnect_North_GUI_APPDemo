@@ -11,34 +11,55 @@ import Demo.AppTask.ServiceInfo;
 import java.util.Vector;
 
 public class CommandManager extends ManagerModule {
-	// Constructor
-	CommandManager(MainWin win, AppTask app, LogPrinter log) {
-		super(app, log, win);
+	static void updatePanel(JPanel pManager, AppTask app, LogPrinter log) {
+		pManager.removeAll();
+		pManager.setBorder(BorderFactory.createTitledBorder("Command Manager"));
 
-		// Post Async Command Panel
-		createPostAsyncCmdPanel(win);
+		// Layout
+		pManager.setLayout(new GridBagLayout());
+		GridBagConstraints constraint = new GridBagConstraints();
+		constraint.fill = GridBagConstraints.NONE;
+		constraint.anchor = GridBagConstraints.WEST;
+		constraint.gridx = 0;
+		constraint.gridy = 0;
+		constraint.gridwidth = 1;
+		constraint.gridheight = 1;
 
-		// Query & Delete Async Command Panel
-		createManagerAsyncCmdPanel(win);
+		new CommandManager(pManager, constraint, app, log);
 	}
 
-	void createPostAsyncCmdPanel(MainWin win) {
+	int mItem = 0;
+
+	// Constructor
+	CommandManager(JPanel pManager, GridBagConstraints constraint, AppTask app, LogPrinter log) {
+		super(app, log, pManager);
+
+		// Post Async Command Panel
+		createPostAsyncCmdPanel(pManager, constraint);
+
+		// Query & Delete Async Command Panel
+		createManagerAsyncCmdPanel(pManager, constraint);
+	}
+
+	void createPostAsyncCmdPanel(JPanel pManager, GridBagConstraints constraint) {
 		// Post Async Command
 		JPanel pPostAsyncCmd = new JPanel();
 		pPostAsyncCmd.setLayout(new FlowLayout());
-		// Add to Main Win
-		win.addComp(pPostAsyncCmd);
+		constraint.gridy = mItem;
+		++mItem;
+		pManager.add(pPostAsyncCmd, constraint);
 
 		// Add "Post Async Command" Item
 		addPostAsyncCmdItem(pPostAsyncCmd);
 	}
 
-	void createManagerAsyncCmdPanel(MainWin win) {
+	void createManagerAsyncCmdPanel(JPanel pManager, GridBagConstraints constraint) {
 		// Query & Delete Async Command
 		JPanel pQueryAndDeleteAsyncCmd = new JPanel();
 		pQueryAndDeleteAsyncCmd.setLayout(new FlowLayout());
-		// Add to Main Win
-		win.addComp(pQueryAndDeleteAsyncCmd);
+		constraint.gridy = mItem;
+		++mItem;
+		pManager.add(pQueryAndDeleteAsyncCmd, constraint);
 
 		// Add "Query Async Command" Item
 		addQueryAsyncCmdItem(pQueryAndDeleteAsyncCmd);
@@ -180,7 +201,7 @@ public class CommandManager extends ManagerModule {
 
 	void updatePostAsyncCmdItemWithRawData(JPanel pPostAsyncCmd, String strDeviceId) {
 		// Update Main Frame
-		mWin.setVisible(false);
+		mManager.setVisible(false);
 		pPostAsyncCmd.removeAll();
 
 		// Device ID
@@ -255,12 +276,12 @@ public class CommandManager extends ManagerModule {
 		});
 
 		// Update Main Frame
-		mWin.setVisible(true);
+		mManager.setVisible(true);
 	}
 
 	void updatePostAsyncCmdItemNormal(JPanel pPostAsyncCmd, String strDeviceId, Vector<ServiceInfo> vServiceList) {
 		// Update Main Frame
-		mWin.setVisible(false);
+		mManager.setVisible(false);
 		pPostAsyncCmd.removeAll();
 
 		// Device ID
@@ -425,6 +446,6 @@ public class CommandManager extends ManagerModule {
 		});
 
 		// Update Main Frame
-		mWin.setVisible(true);
+		mManager.setVisible(true);
 	}
 }

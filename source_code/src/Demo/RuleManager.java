@@ -10,34 +10,55 @@ import java.awt.event.*;
 import java.util.Vector;
 
 public class RuleManager extends ManagerModule {
-	// Constructor
-	RuleManager(MainWin win, AppTask app, LogPrinter log) {
-		super(app, log, win);
-	
-		// Create And Update Rule Panel
-		createCreateAndUpdateRulePanel(win);
+	static void updatePanel(JPanel pManager, AppTask app, LogPrinter log) {
+		pManager.removeAll();
+		pManager.setBorder(BorderFactory.createTitledBorder("Rule Manager"));
 
-		// Query And Delete Rule Panel
-		createQueryAndModifyAndDeleteRulePanel(win);
+		// Layout
+		pManager.setLayout(new GridBagLayout());
+		GridBagConstraints constraint = new GridBagConstraints();
+		constraint.fill = GridBagConstraints.NONE;
+		constraint.anchor = GridBagConstraints.WEST;
+		constraint.gridx = 0;
+		constraint.gridy = 0;
+		constraint.gridwidth = 1;
+		constraint.gridheight = 1;
+
+		new RuleManager(pManager, constraint, app, log);
 	}
 
-	void createCreateAndUpdateRulePanel(MainWin win) {
+	int mItem = 0;
+
+	// Constructor
+	RuleManager(JPanel pManager, GridBagConstraints constraint, AppTask app, LogPrinter log) {
+		super(app, log, pManager);
+	
+		// Create And Update Rule Panel
+		createCreateAndUpdateRulePanel(pManager, constraint);
+
+		// Query And Delete Rule Panel
+		createQueryAndModifyAndDeleteRulePanel(pManager, constraint);
+	}
+
+	void createCreateAndUpdateRulePanel(JPanel pManager, GridBagConstraints constraint) {
 		// Create And Update Rule Panel
 		JPanel pCreateAndUpdateRule = new JPanel();
 		pCreateAndUpdateRule.setLayout(new FlowLayout());
-		// Add to Main Win
-		win.addComp(pCreateAndUpdateRule);
+		constraint.gridy = mItem;
+		++mItem;
+		pManager.add(pCreateAndUpdateRule, constraint);
 
 		// Add "Create And Update Rule" Item
 		addCreateAndUpdateRuleItem(pCreateAndUpdateRule);
 	}
 
-	void createQueryAndModifyAndDeleteRulePanel(MainWin win) {
+	void createQueryAndModifyAndDeleteRulePanel(JPanel pManager, GridBagConstraints constraint) {
 		// Post Async Command
 		JPanel pPostAsyncCmd = new JPanel();
 		pPostAsyncCmd.setLayout(new FlowLayout());
-		// Add to Main Win
-		win.addComp(pPostAsyncCmd);
+		constraint.gridy = mItem;
+		++mItem;
+		pManager.add(pPostAsyncCmd, constraint);
 
 		// Add "Query Rule" Item
 		addQueryRuleItem(pPostAsyncCmd);
@@ -226,7 +247,7 @@ public class RuleManager extends ManagerModule {
 		}
 
 		// Update Main Frame
-		mWin.setVisible(false);
+		mManager.setVisible(false);
 		pCreateAndUpdate.removeAll();
 
 		// Too Many Items, Need 2 Layer
@@ -447,6 +468,6 @@ public class RuleManager extends ManagerModule {
 		});
 
 		// Update Main Frame
-		mWin.setVisible(true);
+		mManager.setVisible(true);
 	}
 }

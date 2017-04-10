@@ -1,6 +1,9 @@
 package Demo;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.*;
 
 import java.io.BufferedReader;
@@ -9,6 +12,7 @@ import java.io.InputStreamReader;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import Utils.JsonUtil;
 
@@ -19,19 +23,20 @@ public class MainWin extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	// Windows Size
-	static final int WIDTH = 1150;
-	//static final int HEIGHT = 1080;
-
+	static final int WIDTH = 1250;
+	static final int HEIGHT = 600;
 	// Log Text Area Size
 	static final int LOG_WIDTH = 8;
 	static final int LOG_HEIGHT = 100;
-
 	// Text Field Length
 	static final int TEXT_FIELD_SHORT = 5;
 	static final int TEXT_FIELD_LONG = 10;
-
-	// Config File
-	static final String MODULE_CONFIG_FILE = "Module.json";
+	// Module List
+	static final String[] MODULE_LIST = {"Application Manager", "Device Manager",
+											"Data Manager", "Command Manager",
+											"Rule Manager", "Subscribe Manager"};
+	// Solution List
+	static final String[] SOLUTION_LIST = {"NB-IoT", "Agent"};
 
 	// Main Frame
 	JFrame mMainFrame;
@@ -46,15 +51,6 @@ public class MainWin extends JPanel {
 
 	// Application
 	AppTask mMyApp;
-
-	boolean mAppManagerEnable = false;
-	boolean mDeviceManagerEnable = false;
-	boolean mDataManagerEnable = false;
-	boolean mCommandManagerForNBEnable = false;
-	boolean mCommandManagerForAgentEnable = false;
-	boolean mRuleManagerEnable = false;
-	boolean mSubscribeManagerEnable = false;
-	int mHeight;
 
 	// Add Component to Main Frame
 	public void addComp(Component component) {
@@ -80,26 +76,20 @@ public class MainWin extends JPanel {
 
 	// Constructor
 	public boolean init() {
-		// Parse Config From Json File
-		boolean bRet = parseConfig();
-		if (bRet == false) {
-			return false;
-		}
-
 		// Main Frame
-		mMainFrame = new JFrame("Demo");
+		mMainFrame = new JFrame("GUI North Demo");
 		mMainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mMainFrame.setResizable(false);
 
 		// Set Size and Location
-		mMainFrame.setSize(WIDTH, mHeight);
+		mMainFrame.setSize(WIDTH, HEIGHT);
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Dimension screenSize = kit.getScreenSize();
-		mMainFrame.setLocation((screenSize.width - WIDTH) / 2, (screenSize.height - mHeight) / 2);
+		mMainFrame.setLocation((screenSize.width - WIDTH) / 2, (screenSize.height - HEIGHT) / 2);
 
 		// Layout
 		setLayout(new GridBagLayout());
-		mMainFrame.add(this, BorderLayout.WEST);
+		mMainFrame.add(this, BorderLayout.PAGE_START);
 		mConstraints = new GridBagConstraints();
 		mConstraints.fill = GridBagConstraints.NONE;
 		mConstraints.anchor = GridBagConstraints.WEST;
@@ -121,108 +111,78 @@ public class MainWin extends JPanel {
 		// Add to Main Win
 		addComp(pLog);
 
-		if (mAppManagerEnable) {
-			// Application Manager
-			AppManager objAppManager = new AppManager(this, mMyApp, mLogPrinter);
-		}
+		// Choose Module Panel
+		JPanel pModuleChoose = new JPanel();
+		pModuleChoose.setBorder(BorderFactory.createTitledBorder("Module Choose:"));
+		addComp(pModuleChoose);
+		pModuleChoose.add(new JLabel("Solution"));
+		JComboBox<String> boxSolution = new JComboBox<String>(SOLUTION_LIST);
+		pModuleChoose.add(boxSolution);
+		pModuleChoose.add(new JLabel("Module:"));
+		JComboBox<String> boxModule = new JComboBox<String>(MODULE_LIST);
+		pModuleChoose.add(boxModule);
 
-		if (mDeviceManagerEnable) {
-			// Device Manager
-			DeviceManager objDeviceManager = new DeviceManager(this, mMyApp, mLogPrinter);
-		}
+		// Manager Panel
+		JPanel pManager = new JPanel();
+		addComp(pManager);
 
-		if (mDataManagerEnable) {
-			// Data Manager
-			DataManager objDataManager = new DataManager(this, mMyApp, mLogPrinter);
-		}
-
-		if (mCommandManagerForNBEnable) {
-			// Command Manager
-			CommandManager objCmdManager = new CommandManager(this, mMyApp, mLogPrinter);
-		}
-
-		if (mCommandManagerForAgentEnable) {
-			// Command Manager For Agent
-			CommandManagerForAgent objCmdManagerForAgent = new CommandManagerForAgent(this, mMyApp, mLogPrinter);
-		}
-
-		if (mRuleManagerEnable) {
-			// Rule Manager
-			RuleManager objRuleManager = new RuleManager(this, mMyApp, mLogPrinter);
-		}
-
-		if (mSubscribeManagerEnable) {
-			// Subscribe Manager
-			SubscribeManager objSubcribeManager = new SubscribeManager(this, mMyApp, mLogPrinter);
-		}
-
-		return true;
-	}
-
-	boolean parseConfig() {
-		// Read Content From Json File
-		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(MODULE_CONFIG_FILE)));
-			String strTotal = new String();
-			String strCurLine = null;
-			while((strCurLine = reader.readLine()) != null) {
-				strTotal += strCurLine;
+		// Box Action
+		boxModule.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				String strModule = boxModule.getSelectedItem().toString();
+				mMainFrame.setVisible(false);
+				if (strModule.equalsIgnoreCase("Application Manager")) {
+					// Display Application Manager
+					AppManager.updatePanel(pManager, mMyApp, mLogPrinter);
+				} else if (strModule.equalsIgnoreCase("Device Manager")) {
+					// Display Device Manager
+					DeviceManager.updatePanel(pManager, mMyApp, mLogPrinter);
+				} else if (strModule.equalsIgnoreCase("Data Manager")) {
+					// Display Data Manger
+					DataManager.updatePanel(pManager, mMyApp, mLogPrinter);
+				} else if (strModule.equalsIgnoreCase("Command Manager")) {
+					String strSolution = boxSolution.getSelectedItem().toString();
+					if (strSolution.equalsIgnoreCase("NB-IoT")) {
+						// Display Command Manager for NB-IoT
+						CommandManager.updatePanel(pManager, mMyApp, mLogPrinter);
+					} else if (strSolution.equalsIgnoreCase("Agent")) {
+						CommandManagerForAgent.updatePanel(pManager, mMyApp, mLogPrinter);
+						// Display Command Manager for Agnet
+					} else {
+						// Shouldn't be here
+					}
+				} else if (strModule.equalsIgnoreCase("Rule Manager")) {
+					RuleManager.updatePanel(pManager, mMyApp, mLogPrinter);
+					//updateAsRuleManager(pManager);
+				} else if (strModule.equalsIgnoreCase("Subscribe Manager")) {
+					SubscribeManager.updatePanel(pManager, mMyApp, mLogPrinter);
+					//updateAsSubscribeManager(pManager);
+				} else {
+					// Shouldn't be here
+				}
+				mMainFrame.setVisible(true);
 			}
-			reader.close();
-			return getConfig(strTotal);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
+		});
 
-	boolean getConfig(String strConfig) {
-		Map<String, String> mConfig = new HashMap<String, String>();
-		mConfig = JsonUtil.jsonString2SimpleObj(strConfig, mConfig.getClass());
-
-		mHeight = 250;
-
-		String strAppManager = mConfig.get("AppManager");
-		if (strAppManager != null && strAppManager.equalsIgnoreCase("ENABLE")) {
-			mAppManagerEnable = true;
-			mHeight += 70;
-		}
-
-		String strDeviceManager = mConfig.get("DeviceManager");
-		if (strDeviceManager != null && strDeviceManager.equalsIgnoreCase("ENABLE")) {
-			mDeviceManagerEnable = true;
-			mHeight += 280;
-		}
-
-		String strDataManager = mConfig.get("DataManager");
-		if (strDataManager != null && strDataManager.equalsIgnoreCase("ENABLE")) {
-			mDataManagerEnable = true;
-			mHeight += 70;
-		}
-
-		String strCommandManagerForNB = mConfig.get("CommandManagerForNB");
-		if (strCommandManagerForNB != null && strCommandManagerForNB.equalsIgnoreCase("ENABLE")) {
-			mCommandManagerForNBEnable = true;
-			mHeight += 140;
-		}
-
-		String strCommandManagerForAgent = mConfig.get("CommandManagerForAgent");
-		if (strCommandManagerForAgent != null && strCommandManagerForAgent.equalsIgnoreCase("ENABLE")) {
-			mCommandManagerForAgentEnable = true;
-			mHeight += 70;
-		}
-
-		String strRuleManager = mConfig.get("RuleManager");
-		if (strRuleManager != null && strRuleManager.equalsIgnoreCase("ENABLE")) {
-			mRuleManagerEnable = true;
-			mHeight += 210;
-		}
-
-		String strSubscribeManager = mConfig.get("SubscribeManager");
-		if (strSubscribeManager != null && strSubscribeManager.equalsIgnoreCase("ENABLE")) {
-			mSubscribeManagerEnable = true;
-			mHeight += 70;
-		}
+		boxSolution.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				String strModule = boxModule.getSelectedItem().toString();
+				if (strModule.equalsIgnoreCase("Command Manager")) {
+					mMainFrame.setVisible(false);
+					String strSolution = boxSolution.getSelectedItem().toString();
+					if (strSolution.equalsIgnoreCase("NB-IoT")) {
+						// Display Command Manager for NB-IoT
+						CommandManager.updatePanel(pManager, mMyApp, mLogPrinter);
+					} else if (strSolution.equalsIgnoreCase("Agent")) {
+						CommandManagerForAgent.updatePanel(pManager, mMyApp, mLogPrinter);
+						// Display Command Manager for Agnet
+					} else {
+						// Shouldn't be here
+					}
+					mMainFrame.setVisible(true);
+				}
+			}
+		});
 
 		return true;
 	}

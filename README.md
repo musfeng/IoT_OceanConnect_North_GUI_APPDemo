@@ -6,7 +6,7 @@
 * 正在进行北向应用开发，希望获得一些代码示例来了解接口参数配置和返回值解析。
 
 ## 版本更新
-North GUI App Demo V1.0
+North GUI App Demo V1.1
 
 ## 开发环境
 * 操作系统：Windows7专业版
@@ -19,6 +19,7 @@ North GUI App Demo V1.0
 	* Demo.jar：可执行程序;
 	* ExceptionTrace.txt：异常记录。
 * source_code：该工具源码示例。
+	* cert：HTTPS连接所用证书；（工具默认使用HTTPS连接）
 	* src：源码文件
 	* lib：依赖库
 	* Module.json：模块配置文件（可以通过配置该文件，使能北向应用的不同模块）；
