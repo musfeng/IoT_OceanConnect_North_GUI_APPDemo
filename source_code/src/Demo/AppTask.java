@@ -6,6 +6,7 @@ import java.util.Vector;
 
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Base64;
 
 import Utils.JsonUtil;
 import Utils.HttpsUtil;
@@ -612,7 +613,11 @@ public class AppTask {
 		// Get Raw Data
 		Map<String, Object> mRawDataService = new HashMap<String, Object>();
 		mRawDataService = JsonUtil.jsonString2SimpleObj(vServiceInfo.elementAt(0), mRawDataService.getClass());
-		return new CurrentData(mRawDataService.get("eventTime").toString(), (Map<String, Object>)mRawDataService.get("data"));
+		Map<String, Object> mRawDataBeforDecoder = new HashMap<String, Object>();
+		mRawDataBeforDecoder = JsonUtil.jsonString2SimpleObj(JsonUtil.jsonObj2Sting(mRawDataService.get("data")), mRawDataBeforDecoder.getClass());
+		Map<String, Object> mRawData = new HashMap<String, Object>();
+		mRawData.put("rawData", decodeAsBase64(mRawDataBeforDecoder.get("rawData").toString()));
+		return new CurrentData(mRawDataService.get("eventTime").toString(), mRawData);
 	}
 
 	// Query History Raw Data
@@ -667,7 +672,7 @@ public class AppTask {
 			mServiceData = JsonUtil.jsonString2SimpleObj(vDeviceHistoryData.elementAt(i), mServiceData.getClass());
 			Map<String, Object> mData = new HashMap<String, Object>();
 			mData = JsonUtil.jsonString2SimpleObj(JsonUtil.jsonObj2Sting(mServiceData.get("data")), mData.getClass());
-			vData.addElement(new HistoryData(mServiceData.get("timestamp").toString(), mData.get("rawData")));
+			vData.addElement(new HistoryData(mServiceData.get("timestamp").toString(), decodeAsBase64(mData.get("rawData").toString())));
 		}
 		return mHistoryData;
 	}
@@ -937,7 +942,7 @@ public class AppTask {
 		// Request URL
 		String strUrl = mStrBaseUrl + "iocm/app/cmd/v1.2.0/devices/" + strDeviceId + "/commands";
 		// Param
-		ObjectNode oValueParam = JsonUtil.convertObject2ObjectNode("{\"" + "rawData" + "\":\"" + strData + "\"}");
+		ObjectNode oValueParam = JsonUtil.convertObject2ObjectNode("{\"" + "rawData" + "\":\"" + encodeAsBase64(strData) + "\"}");
 		Map<String, Object> mParamCommand = new HashMap<String, Object>();
 		mParamCommand.put("serviceId", "RawData");
 		mParamCommand.put("method", "RawData");
@@ -1092,7 +1097,6 @@ public class AppTask {
 		mParamHeader.put("mode", strMode);
 		mParamHeader.put("from", strFrom);
 		mParamHeader.put("method", strMethod);
-		mParamHeader.put("callbackURL", "http://10.1.1.1:8080/ab/cd/ef");
 		Map<String, Object> mParam = new HashMap<String, Object>();
 		mParam.put("header", mParamHeader);
 		Map<String, Object> mBody = new HashMap<String, Object>();
@@ -1437,5 +1441,72 @@ public class AppTask {
 		String strMonth = strTimestamp.substring(4, 6);
 		String strDate = strTimestamp.substring(6, 8);
 		return strYear + "/" + strMonth + "/" + strDate;
+	}
+
+	// Base64 Decoder
+	String decodeAsBase64(String strBefore) throws Exception {
+		String strResult = new String();
+
+		// Decoder as Base64
+		byte[] byteList = Base64.getDecoder().decode(strBefore);
+
+		for (int i = 0; i != byteList.length; ++i) {
+			int nCur = byteList[i];
+			if (nCur < 0) {
+				nCur += 256;
+			}
+
+			char cA = decodeAsHex(nCur / 16);
+			char cB = decodeAsHex(nCur % 16);
+			strResult = strResult + cA + cB;
+		}
+
+		return strResult;
+	}
+
+	char decodeAsHex(int n) throws Exception {
+		if (n >= 10) {
+			return (char)(n - 10 + 'A');
+		}
+		if (n >=0) {
+			return (char)(n + '0');
+		}
+		throw new Exception();
+	}
+
+	// Base64 Encoder
+	String encodeAsBase64(String strBefore) throws Exception {
+		if (strBefore.length() %2 != 0) {
+			throw new Exception();
+		}
+
+		byte[] byteList = new byte[strBefore.length() / 2];
+
+		for (int i = 0; i < strBefore.length(); i += 2) {
+			byteList[i / 2] = encodeAsByte(strBefore.charAt(i), strBefore.charAt(i + 1));
+		}
+
+		// Encode As Base64
+		return Base64.getEncoder().encodeToString(byteList);
+	}
+
+	byte encodeAsByte(char cA, char cB) throws Exception {
+		int nA = convertToInt(cA);
+		int nB = convertToInt(cB);
+		return (byte)(nA * 16 + nB);
+	}
+
+	int convertToInt(char c) throws Exception {
+		int n = 0;
+		if (c >= '0' && c <= '9') {
+			n = c - '0';
+		} else if (c >= 'A' && c <= 'F') {
+			n = c - 'A' + 10;
+		} else if (c >= 'a' && c <= 'f') {
+			n = c - 'a' + 10;
+		} else {
+			throw new Exception();
+		}
+		return n;
 	}
 }
