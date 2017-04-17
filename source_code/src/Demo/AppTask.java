@@ -421,7 +421,6 @@ public class AppTask {
 		String strUrlQueryStatus = mStrBaseUrl + "iocm/app/reg/v1.1.0/devices/" + strDeviceId;
 		// Send Request
 		String strResult = mObjHttpsUtil.doGetWithParasForString(strUrlQueryStatus, null, mMapHeader);
-		System.out.println(strResult);
 
 		// Parse Result
 		Map<String, Object> mResult = new HashMap<String, Object>();
@@ -448,7 +447,6 @@ public class AppTask {
 		String strUrl = mStrBaseUrl + "iocm/app/dm/v1.1.0/devices/" + strDeviceId;
 		// Send Request
 		String strResult = mObjHttpsUtil.doGetWithParasForString(strUrl, null, mMapHeader);
-		System.out.println(strResult);
 
 		// Parse Result
 		Map<String, Object> mResult = new HashMap<String, Object>();

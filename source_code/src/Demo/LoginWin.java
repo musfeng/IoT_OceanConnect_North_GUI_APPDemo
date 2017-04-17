@@ -4,6 +4,13 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 
+import Utils.JsonUtil;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.Map;
+import java.util.HashMap;
+
 // Login Window
 public class LoginWin extends JPanel {
 	/**
@@ -12,7 +19,7 @@ public class LoginWin extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	// Window Size
-	static final int WIDTH = 300;
+	static final int WIDTH = 350;
 	static final int HEIGHT = 150;
 
 	// Error Dialog Size
@@ -21,6 +28,9 @@ public class LoginWin extends JPanel {
 
 	// Text Field Length
 	static final int TEXT_FIELD_LENGTH = 20;
+
+	// Config File Path
+	static String CONFIG_FILE = "Config.json";
 
 	// Screen Dimension
 	Dimension mScreenSize;
@@ -125,6 +135,23 @@ public class LoginWin extends JPanel {
 		mAppIDTextField = new JTextField(TEXT_FIELD_LENGTH);
 		mPasswordTextField = new JTextField(TEXT_FIELD_LENGTH);
 
+		// Read Config
+		JButton bReadConfig = new JButton("Read Config");
+		bReadConfig.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				String strConfig = readConfigFile(CONFIG_FILE);
+				if (strConfig != null && strConfig.length() != 0) {
+					Map<String, String> mConfig = new HashMap<String, String>();
+					mConfig = JsonUtil.jsonString2SimpleObj(strConfig, mConfig.getClass());
+					String strIP = mConfig.get("IP");
+					String strPort = mConfig.get("Port");
+					String strAppId = mConfig.get("AppId");
+					String strPassword = mConfig.get("Password");
+					platformConfig(strIP, strPort, strAppId, strPassword);
+				}
+			}
+		});
+
 		// Login Button
 		JButton bLogin = new JButton("Login");
 		// Button Action
@@ -174,12 +201,27 @@ public class LoginWin extends JPanel {
 		addComp(new JLabel("Port: "), mPortTextField, constraints);
 		addComp(new JLabel("App ID: "), mAppIDTextField, constraints);
 		addComp(new JLabel("Password: "), mPasswordTextField, constraints);
-		addComp(null, bLogin, constraints);
+		addComp(bReadConfig, bLogin, constraints);
 
 		// Create Error Dialog
 		createErrorDialog();
 
 		// Set Login Frame Visible
 		mLoginFrame.setVisible(true);
+	}
+
+	String readConfigFile(String strConfigFile) {
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(CONFIG_FILE)));
+			String strTotal = new String();
+			String strCurLine = null;
+			while((strCurLine = reader.readLine()) != null)
+				strTotal += strCurLine;
+			reader.close();
+			return strTotal;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
