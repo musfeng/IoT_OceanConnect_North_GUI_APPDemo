@@ -77,7 +77,7 @@ public class MainWin extends JPanel {
 	// Constructor
 	public boolean init() {
 		// Main Frame
-		mMainFrame = new JFrame("GUI North Demo");
+		mMainFrame = new JFrame("GUI North Demo, Developed by Huawei eSDK YuHui");
 		mMainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mMainFrame.setResizable(false);
 
@@ -100,6 +100,8 @@ public class MainWin extends JPanel {
 		taLog.setWrapStyleWord(true);
 		// Log Printer
 		mLogPrinter = new LogPrinter(taLog);
+		mLogPrinter.printlnAsTitle("Huawei Developer: http://developer.huawei.com/ict/cn");
+		mLogPrinter.printlnAsTitle("GUI North Demo, Developed by Huawei eSDK YuHui");
 		mLogPrinter.printlnAsTitle("Log Content");
 		mMyApp.setLogPrinter(mLogPrinter);
 		// Log Panel
@@ -146,17 +148,17 @@ public class MainWin extends JPanel {
 						// Display Command Manager for NB-IoT
 						CommandManager.updatePanel(pManager, mMyApp, mLogPrinter);
 					} else if (strSolution.equalsIgnoreCase("Agent")) {
-						CommandManagerForAgent.updatePanel(pManager, mMyApp, mLogPrinter);
 						// Display Command Manager for Agnet
+						CommandManagerForAgent.updatePanel(pManager, mMyApp, mLogPrinter);
 					} else {
 						// Shouldn't be here
 					}
 				} else if (strModule.equalsIgnoreCase("Rule Manager")) {
+					// Display Rule Manager
 					RuleManager.updatePanel(pManager, mMyApp, mLogPrinter);
-					//updateAsRuleManager(pManager);
 				} else if (strModule.equalsIgnoreCase("Subscribe Manager")) {
+					// Display Subscribe Manager
 					SubscribeManager.updatePanel(pManager, mMyApp, mLogPrinter);
-					//updateAsSubscribeManager(pManager);
 				} else {
 					// Shouldn't be here
 				}
@@ -183,6 +185,9 @@ public class MainWin extends JPanel {
 				}
 			}
 		});
+
+		// Default Manager
+		boxModule.setSelectedItem("Device Manager");
 
 		return true;
 	}

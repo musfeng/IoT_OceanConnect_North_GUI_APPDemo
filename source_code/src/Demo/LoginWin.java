@@ -49,6 +49,9 @@ public class LoginWin extends JPanel {
 	JDialog mErrorDialog;
 	JLabel mErrorMsg;
 
+	// Read Config Error Dialog
+	JDialog mReadConfigErrorDialog;
+
 	// Item Counter
 	Integer mItemCounter = 0;
 
@@ -106,6 +109,33 @@ public class LoginWin extends JPanel {
 		});
 	}
 
+	// Create Read Config Error Dialog
+	public void createReadConfigErrorDialog() {
+		// Dialog for Read Config Fail
+		mReadConfigErrorDialog = new JDialog();
+		mReadConfigErrorDialog.setLayout(new FlowLayout());
+		mReadConfigErrorDialog.setTitle("Read Config Fail");
+
+		// Set Size and Location
+		mReadConfigErrorDialog.setSize(ERROR_DIALOG_WIDTH, ERROR_DIALOG_HEIGHT);
+		mReadConfigErrorDialog.setLocation(mScreenSize.width / 2, mScreenSize.height / 2);
+
+		// Default Error Message
+		mErrorMsg = new JLabel("Read Config File Failed, Check Config.json.");
+		mReadConfigErrorDialog.add(mErrorMsg);
+
+		// Return
+		JButton bReturn = new JButton("Return");
+		mReadConfigErrorDialog.add(bReturn);
+
+		// Button Action
+		bReturn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				mReadConfigErrorDialog.setVisible(false);
+			}
+		});
+	}
+
 	// Constructor
 	LoginWin() {
 		// Login Frame
@@ -139,15 +169,23 @@ public class LoginWin extends JPanel {
 		JButton bReadConfig = new JButton("Read Config");
 		bReadConfig.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				String strConfig = readConfigFile(CONFIG_FILE);
-				if (strConfig != null && strConfig.length() != 0) {
-					Map<String, String> mConfig = new HashMap<String, String>();
-					mConfig = JsonUtil.jsonString2SimpleObj(strConfig, mConfig.getClass());
-					String strIP = mConfig.get("IP");
-					String strPort = mConfig.get("Port");
-					String strAppId = mConfig.get("AppId");
-					String strPassword = mConfig.get("Password");
-					platformConfig(strIP, strPort, strAppId, strPassword);
+				try {
+					String strConfig = readConfigFile(CONFIG_FILE);
+					if (strConfig != null && strConfig.length() != 0) {
+						Map<String, String> mConfig = new HashMap<String, String>();
+						mConfig = JsonUtil.jsonString2SimpleObj(strConfig, mConfig.getClass());
+						String strIP = mConfig.get("IP");
+						String strPort = mConfig.get("Port");
+						String strAppId = mConfig.get("AppId");
+						String strPassword = mConfig.get("Password");
+						if (strIP == null || strIP.length() == 0 || strPort == null || strPort.length() == 0
+								|| strAppId == null || strAppId.length() == 0 || strPassword == null || strPassword.length() == 0) {
+							throw new Exception();
+						}
+						platformConfig(strIP, strPort, strAppId, strPassword);
+					}
+				} catch (Exception e) {
+					mReadConfigErrorDialog.setVisible(true);
 				}
 			}
 		});
@@ -205,23 +243,20 @@ public class LoginWin extends JPanel {
 
 		// Create Error Dialog
 		createErrorDialog();
+		// Create Read Config Error Dialog
+		createReadConfigErrorDialog();
 
 		// Set Login Frame Visible
 		mLoginFrame.setVisible(true);
 	}
 
-	String readConfigFile(String strConfigFile) {
-		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(CONFIG_FILE)));
-			String strTotal = new String();
-			String strCurLine = null;
-			while((strCurLine = reader.readLine()) != null)
-				strTotal += strCurLine;
-			reader.close();
-			return strTotal;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+	String readConfigFile(String strConfigFile) throws Exception {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(CONFIG_FILE)));
+		String strTotal = new String();
+		String strCurLine = null;
+		while((strCurLine = reader.readLine()) != null)
+			strTotal += strCurLine;
+		reader.close();
+		return strTotal;
 	}
 }
