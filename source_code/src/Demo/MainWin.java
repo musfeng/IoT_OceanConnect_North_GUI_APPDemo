@@ -100,9 +100,7 @@ public class MainWin extends JPanel {
 		taLog.setWrapStyleWord(true);
 		// Log Printer
 		mLogPrinter = new LogPrinter(taLog);
-		mLogPrinter.printlnAsTitle("Huawei Developer: http://developer.huawei.com/ict/cn");
-		mLogPrinter.printlnAsTitle("GUI North Demo, Developed by Huawei eSDK YuHui");
-		mLogPrinter.printlnAsTitle("Log Content");
+		mLogPrinter.printDeveloper();
 		mMyApp.setLogPrinter(mLogPrinter);
 		// Log Panel
 		JPanel pLog = new JPanel();

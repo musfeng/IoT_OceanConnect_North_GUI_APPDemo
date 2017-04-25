@@ -61,6 +61,13 @@ public class LogPrinter {
 		println(" -- " + strData);
 	}
 
+	void printDeveloper() {
+		println("***********************************");
+		println("Developed by Huawei eSDK, Hui YU");
+		println("Email: yuhui22@huawei.com");
+		println("***********************************");
+	}
+
 	void printExceptionTrace(Exception e) {
 		e.printStackTrace(mWriter);
 		mWriter.flush();
