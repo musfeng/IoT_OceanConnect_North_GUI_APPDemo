@@ -19,8 +19,8 @@ public class LoginWin extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	// Window Size
-	static final int WIDTH = 350;
-	static final int HEIGHT = 150;
+	static final int LOGIN_WIDTH = 350;
+	static final int LOGIN_HEIGHT = 150;
 
 	// Error Dialog Size
 	static final int ERROR_DIALOG_WIDTH = 300;
@@ -45,13 +45,6 @@ public class LoginWin extends JPanel {
 	JTextField mAppIDTextField;
 	JTextField mPasswordTextField;
 
-	// Error Dialog
-	JDialog mErrorDialog;
-	JLabel mErrorMsg;
-
-	// Read Config Error Dialog
-	JDialog mReadConfigErrorDialog;
-
 	// Item Counter
 	Integer mItemCounter = 0;
 
@@ -59,11 +52,13 @@ public class LoginWin extends JPanel {
 	public void addComp(Component compA, Component compB, GridBagConstraints constraints) {
 		constraints.gridwidth = 1;
 		constraints.gridheight = 1;
+		// Component A
 		if (compA != null) {
 			constraints.gridx = 0;
 			constraints.gridy = mItemCounter;
 			add(compA, constraints);
 		}
+		// Component B
 		if (compB != null) {
 			constraints.gridx = 1;
 			constraints.gridy = mItemCounter;
@@ -80,62 +75,6 @@ public class LoginWin extends JPanel {
 		mPasswordTextField.setText(strPassword);
 	}
 
-	// Create Error Dialog
-	public void createErrorDialog() {
-		// Dialog for Login Fail
-		mErrorDialog = new JDialog();
-		mErrorDialog.setLayout(new FlowLayout());
-		mErrorDialog.setTitle("Login Fail");
-
-		// Set Size And Location
-		mErrorDialog.setSize(ERROR_DIALOG_WIDTH, ERROR_DIALOG_HEIGHT);
-		mErrorDialog.setLocation(mScreenSize.width / 2, mScreenSize.height / 2);
-
-		// Default Error Message
-		mErrorMsg = new JLabel("Login Failed, AppId or Password is Wrong.");
-		mErrorDialog.add(mErrorMsg);
-
-		// Try Again Button
-		JButton bTryAgain = new JButton("Try Again");
-		mErrorDialog.add(bTryAgain);
-
-		// Button Action
-		bTryAgain.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
-				// Disable Error Dialog, Enable Login Frame
-				mErrorDialog.setVisible(false);
-				mLoginFrame.setVisible(true);
-			}
-		});
-	}
-
-	// Create Read Config Error Dialog
-	public void createReadConfigErrorDialog() {
-		// Dialog for Read Config Fail
-		mReadConfigErrorDialog = new JDialog();
-		mReadConfigErrorDialog.setLayout(new FlowLayout());
-		mReadConfigErrorDialog.setTitle("Read Config Fail");
-
-		// Set Size and Location
-		mReadConfigErrorDialog.setSize(ERROR_DIALOG_WIDTH, ERROR_DIALOG_HEIGHT);
-		mReadConfigErrorDialog.setLocation(mScreenSize.width / 2, mScreenSize.height / 2);
-
-		// Default Error Message
-		mErrorMsg = new JLabel("Read Config File Failed, Check Config.json.");
-		mReadConfigErrorDialog.add(mErrorMsg);
-
-		// Return
-		JButton bReturn = new JButton("Return");
-		mReadConfigErrorDialog.add(bReturn);
-
-		// Button Action
-		bReturn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
-				mReadConfigErrorDialog.setVisible(false);
-			}
-		});
-	}
-
 	// Constructor
 	LoginWin() {
 		// Login Frame
@@ -144,9 +83,8 @@ public class LoginWin extends JPanel {
 		mLoginFrame.setResizable(false);
 
 		// Set Size and Location
-		mLoginFrame.setSize(WIDTH, HEIGHT);
-		Toolkit kit = Toolkit.getDefaultToolkit();
-		mScreenSize = kit.getScreenSize();
+		mLoginFrame.setSize(LOGIN_WIDTH, LOGIN_HEIGHT);
+		mScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		mLoginFrame.setLocation((mScreenSize.width - WIDTH) / 2, (mScreenSize.height - HEIGHT) / 2);
 
 		// Layout
@@ -167,9 +105,24 @@ public class LoginWin extends JPanel {
 
 		// Read Config
 		JButton bReadConfig = new JButton("Read Config");
+		// Login Button
+		JButton bLogin = new JButton("Login");
+
+		// Add Components to Login Frame
+		addComp(new JLabel("Platform IP: "), mIPTextField, constraints);
+		addComp(new JLabel("Port: "), mPortTextField, constraints);
+		addComp(new JLabel("App ID: "), mAppIDTextField, constraints);
+		addComp(new JLabel("Password: "), mPasswordTextField, constraints);
+		addComp(bReadConfig, bLogin, constraints);
+		
+		// Set Login Frame Visible
+		mLoginFrame.setVisible(true);
+
+		// Button Action
 		bReadConfig.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				try {
+					// Read Platform Info From Config File
 					String strConfig = readConfigFile(CONFIG_FILE);
 					if (strConfig != null && strConfig.length() != 0) {
 						Map<String, String> mConfig = new HashMap<String, String>();
@@ -181,17 +134,36 @@ public class LoginWin extends JPanel {
 						if (strIP == null || strIP.length() == 0 || strPort == null || strPort.length() == 0
 								|| strAppId == null || strAppId.length() == 0 || strPassword == null || strPassword.length() == 0) {
 							throw new Exception();
+						} else {
+							// Set Platform Info
+							platformConfig(strIP, strPort, strAppId, strPassword);
 						}
-						platformConfig(strIP, strPort, strAppId, strPassword);
+					} else {
+						throw new Exception();
 					}
 				} catch (Exception e) {
-					mReadConfigErrorDialog.setVisible(true);
+					// Error Happened While Reading Config File
+					JDialog error = new JDialog();
+					error.setLayout(new FlowLayout());
+					error.setTitle("Read Config File Error");
+					error.add(new JLabel("Error Happened While Reading Config File."));
+
+					error.setSize(ERROR_DIALOG_WIDTH, ERROR_DIALOG_HEIGHT);
+					error.setLocation(mScreenSize.width / 2, mScreenSize.height / 2);
+					
+					JButton bReturn = new JButton("Return");
+					error.add(bReturn);
+					bReturn.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent event) {
+							error.setVisible(false);
+						}
+					});
+
+					error.setVisible(true);
 				}
 			}
 		});
 
-		// Login Button
-		JButton bLogin = new JButton("Login");
 		// Button Action
 		bLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -204,59 +176,65 @@ public class LoginWin extends JPanel {
 					// Create Application
 					AppTask myApp = mainWin.createApp(strIP, strPort, strAppId, strPassword);
 					if (myApp == null) {
-						mErrorMsg.setText("Create Application Failed.");
-						// Enable Error Dialog, Disable Login Frame
-						mErrorDialog.setVisible(true);
-						mLoginFrame.setVisible(false);
+						throw new Exception("Create App Failed.");
 					} else {
 						// Authentication
 						boolean bRet = myApp.authentication();
-						if (bRet) {
-							// Login Success
-							mainWin.init();
-							// Enable Main Frame, Disable Login Frame
-							mainWin.setVisible(true);
-							mLoginFrame.setVisible(false);
-						} else {
+						if (bRet == false) {
 							// Login Fail
-							// Enable Error Dialog, Disable Login Frame
-							mErrorDialog.setVisible(true);
-							mLoginFrame.setVisible(false);
+							throw new Exception("Auth Failed, Check AppID and Password.");
+						} else {
+							bRet = mainWin.init();
+							if (bRet == false) {
+								// Init Fail
+								throw new Exception("Init Failed, Unknown Reason.");
+							} else {
+								mainWin.setVisible(true);
+								mLoginFrame.setVisible(false);
+							}
 						}
 					}
 				} catch (Exception e) {
-					// Connect Fail
-					mErrorMsg.setText("Connect Failed, Please Check Your Network.");
-					// Enable Error Dialog, Disable Login Frame
-					mErrorDialog.setVisible(true);
-					mLoginFrame.setVisible(false);
+					// Error Happened While Authentication
+					JDialog error = new JDialog();
+					error.setLayout(new FlowLayout());
+					error.setTitle("Authentication Error");
+					if (e.getMessage() == null || e.getMessage().length() == 0) {
+						error.add(new JLabel("Connect Failed, Check Your Network."));
+					} else {
+						error.add(new JLabel(e.getMessage()));
+					}
+
+					error.setSize(ERROR_DIALOG_WIDTH, ERROR_DIALOG_HEIGHT);
+					error.setLocation(mScreenSize.width / 2, mScreenSize.height / 2);
+
+					JButton bReturn = new JButton("Return");
+					error.add(bReturn);
+					bReturn.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent event) {
+							error.setVisible(false);
+						}
+					});
+
+					error.setVisible(true);
 				}
 			}
 		});
-
-		// Add Components to Login Frame
-		addComp(new JLabel("Platform IP: "), mIPTextField, constraints);
-		addComp(new JLabel("Port: "), mPortTextField, constraints);
-		addComp(new JLabel("App ID: "), mAppIDTextField, constraints);
-		addComp(new JLabel("Password: "), mPasswordTextField, constraints);
-		addComp(bReadConfig, bLogin, constraints);
-
-		// Create Error Dialog
-		createErrorDialog();
-		// Create Read Config Error Dialog
-		createReadConfigErrorDialog();
-
-		// Set Login Frame Visible
-		mLoginFrame.setVisible(true);
 	}
 
+	// Read Platform Info From Config File
 	String readConfigFile(String strConfigFile) throws Exception {
+		// Create BufferReader
 		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(CONFIG_FILE)));
+
+		// Read Line by Line
 		String strTotal = new String();
 		String strCurLine = null;
 		while((strCurLine = reader.readLine()) != null)
 			strTotal += strCurLine;
 		reader.close();
+
+		// Return Whole Content
 		return strTotal;
 	}
 }
