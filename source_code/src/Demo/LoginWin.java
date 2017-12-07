@@ -20,7 +20,7 @@ public class LoginWin extends JPanel {
 
 	// Window Size
 	static final int LOGIN_WIDTH = 350;
-	static final int LOGIN_HEIGHT = 150;
+	static final int LOGIN_HEIGHT = 160;
 
 	// Error Dialog Size
 	static final int ERROR_DIALOG_WIDTH = 300;
