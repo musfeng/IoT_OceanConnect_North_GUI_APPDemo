@@ -893,12 +893,14 @@ public class AppTask {
 				return null;
 			}
 			String strCommandList = JsonUtil.jsonObj2Sting(mService.get("commands"));
-			strCommandList = strCommandList.substring(1, strCommandList.length() - 1);
-			Vector<String> vCommand = parseStringToArray(strCommandList);
-			if (vCommand.size() == 0) {
-				mLogPrinter.printlnAsError("This Service ( " + strServiceType + " ) Has No Command.");
+			//if  mService dont have command srtCommandList="[]"
+			if (strCommandList.length() <=2) {
+				mLogPrinter.printlnAsWarn("This Service ( " + strServiceType + " ) Has No Command.");
 				continue;
 			}
+			strCommandList = strCommandList.substring(1, strCommandList.length() - 1);
+			Vector<String> vCommand = parseStringToArray(strCommandList);
+
 			// Get Command Type List
 			Vector<CommandInfo> vCommandTypeList = new Vector<CommandInfo>(10, 1);
 			for (int j = 0; j < vCommand.size(); ++j) {
