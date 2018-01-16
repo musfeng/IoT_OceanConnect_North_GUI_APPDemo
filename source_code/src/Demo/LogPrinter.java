@@ -56,7 +56,9 @@ public class LogPrinter {
 	void printlnAsError(String strErrorMsg) {
 		println("[ERROR]: " + strErrorMsg);
 	}
-
+	void printlnAsWarn(String strData) {
+		println("[Warn]: " + strErrorMsg);
+	}
 	void printlnAsData(String strData) {
 		println(" -- " + strData);
 	}
